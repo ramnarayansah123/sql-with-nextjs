@@ -41,6 +41,7 @@ export async function POST(request: NextRequest) {
   }
 }
 
+// This is for PUT METHOD
 
 export async function PUT(request: NextRequest,{params}: {params:{id:string}}) {
   
@@ -65,3 +66,28 @@ export async function PUT(request: NextRequest,{params}: {params:{id:string}}) {
 
   return NextResponse.json(updatedUser);
 }
+
+
+//This is Delete Method 
+
+export async function DELETE(request: NextRequest, { params }: { params: { id: string } }) {
+  const { id } = params;
+
+  const user = await prisma.user.findUnique({
+    where: {
+      id: parseInt(id, 10),
+    },
+  });
+
+  if (!user) {
+    return NextResponse.json({ error: 'User not found' }, { status: 404 });
+  }
+
+  await prisma.user.delete({
+    where: { id: user.id },
+  });
+
+  return NextResponse.json({ message: 'User successfully deleted' });
+}
+
+
