@@ -2,10 +2,18 @@ import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "../../../../../prisma/client";
 
 
+
 // This is for GET METHOD
-export async function GET(request:NextRequest){
-  const users =await prisma.user.findMany()
-    return NextResponse.json(users)}
+export async function GET(request:NextRequest,
+{params}: {params: {id: string}}
+
+){
+  const user =await prisma.user.findUnique({
+    where:{id:parseInt(params.id)}
+  })
+  if(!user)
+    return NextResponse.json({error:"user not found"},{status:201})
+    return NextResponse.json(user)}
 
     // this for POST METHOD 
 export async function POST(request: NextRequest) {
@@ -31,4 +39,29 @@ export async function POST(request: NextRequest) {
       { status: 500 }
     );
   }
+}
+
+
+export async function PUT(request: NextRequest,{params}: {params:{id:string}}) {
+  
+  const body = await request.json();
+
+  const user = await prisma.user.findUnique({
+    where: {
+      id: parseInt(params.id), },
+  });
+
+  if (!user) {
+    return NextResponse.json({ error: 'User not found' }, { status: 404 });
+  }
+
+  const updatedUser = await prisma.user.update({
+    where: { id: user.id },
+    data: {
+      name: body.name,
+      email: body.email,
+    },
+  });
+
+  return NextResponse.json(updatedUser);
 }
